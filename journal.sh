@@ -12,8 +12,19 @@ import_config() {
   [ -z "$JOURNAL_EDITOR" ] && die "JOURNAL_EDITOR has to be defined"
 }
 
+today_date() {
+  echo $(date +%Y-%m-%d)
+}
+
+file_name() {
+  local date=$1
+  local extension=$([ -z "$JOURNAL_FILE_EXTENSION" ] && echo "" || echo ".${JOURNAL_FILE_EXTENSION}")
+
+  echo ${date}${extension}
+}
+
 main() {
   import_config
-  echo ${JOURNAL_EDITOR}
+  file_name $(today_date)
 }
 main
