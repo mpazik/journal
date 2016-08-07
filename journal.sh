@@ -16,6 +16,15 @@ today_date() {
     echo $(date +%Y-%m-%d)
 }
 
+date_minus_days() {
+    local minus_days=$1
+    echo $(date -v-${minus_days}d +%Y-%m-%d)
+}
+
+current_week() {
+    echo $(date +%V)
+}
+
 file_name() {
     local date=$1
     local extension=$([ -z "$JOURNAL_FILE_EXTENSION" ] && echo "" || echo ".${JOURNAL_FILE_EXTENSION}")
@@ -44,8 +53,25 @@ show_day() {
     cat $(file_path ${date})
 }
 
+show_week() {
+    local week_to_show=$1
+    [ "$week_to_show" -gt "$(current_week)" ] && die "You can not show a week from future"
+
+    local days_to_adjust=$((  ($(current_week) - ${week_to_show}) * 7 ))
+    local day_of_week=$(date +%u)
+
+    local i
+    for (( i=$day_of_week-1; i>=0; i-- )) do
+        local date=$(date_minus_days $(( ${i}+days_to_adjust )))
+        if [ -f $(file_path ${date}) ]; then
+	        printf "\n\n"
+	        show_day ${date}
+        fi
+    done
+}
+
 main() {
     import_config
-    show_day $(today_date)
+    show_week 31
 }
 main
