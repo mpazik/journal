@@ -33,8 +33,19 @@ open_file() {
     ${JOURNAL_EDITOR} ${path}
 }
 
+show_header() {
+    local date=$1
+    printf "\n${date}\n$(printf -- -%.0s {1..50})\n"
+}
+
+show_day() {
+    local date=$1
+    show_header ${date}
+    cat $(file_path ${date})
+}
+
 main() {
     import_config
-    open_file $(file_path $(today_date))
+    show_day $(today_date)
 }
 main
