@@ -23,8 +23,13 @@ file_name() {
   echo ${date}${extension}
 }
 
+file_path() {
+  local date=$1
+  echo "${JOURNAL_PATH}/$(file_name ${date})"
+}
+
 main() {
   import_config
-  file_name $(today_date)
+  file_path $(today_date)
 }
 main
