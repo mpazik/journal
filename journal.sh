@@ -28,8 +28,13 @@ file_path() {
     echo "${JOURNAL_PATH}/$(file_name ${date})"
 }
 
+open_file() {
+    local path=$1
+    ${JOURNAL_EDITOR} ${path}
+}
+
 main() {
     import_config
-    file_path $(today_date)
+    open_file $(file_path $(today_date))
 }
 main
