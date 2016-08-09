@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 # A script that manages daily journal
 
+SCRIPT_PATH=$(dirname "$0")
+
 die() {
     echo "$*"
     exit 1
 }
 
 import_config() {
-    source ./journal.cfg
+    source ${SCRIPT_PATH}/journal.cfg
     [ -z "$JOURNAL_PATH" ] && die "JOURNAL_PATH has to be defined"
     [ -z "$JOURNAL_EDITOR" ] && die "JOURNAL_EDITOR has to be defined"
 }
@@ -72,6 +74,6 @@ show_week() {
 
 main() {
     import_config
-    show_week 31
+    open_file $(file_path $(today_date))
 }
 main
