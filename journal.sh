@@ -2,6 +2,16 @@
 # A script that manages daily journal
 
 SCRIPT_PATH=$(dirname "$0")
+JOURNAL_DEFAULT_ACTION="open"
+JOURNAL_DEFAULT_SHOW_ACTION="week"
+
+help() {
+    echo "To be done"
+}
+
+help_show() {
+    echo "To be done"
+}
 
 die() {
     echo "$*"
@@ -66,14 +76,38 @@ show_week() {
     for (( i=$day_of_week-1; i>=0; i-- )) do
         local date=$(date_minus_days $(( ${i}+days_to_adjust )))
         if [ -f $(file_path ${date}) ]; then
-	        printf "\n\n"
+	        printf "\n"
 	        show_day ${date}
+	        printf "\n"
         fi
     done
 }
 
 main() {
     import_config
-    open_file $(file_path $(today_date))
+
+    local action=${1:-$JOURNAL_DEFAULT_ACTION}
+
+    case ${action} in
+        "open")
+            open_file $(file_path $(today_date))
+        ;;
+        "show")
+            local what_to_show=${2:-$JOURNAL_DEFAULT_SHOW_ACTION}
+            case ${what_to_show} in
+                "day")
+                    show_day $(today_date)
+                ;;
+                "week")
+                    show_week $(current_week)
+                ;;
+                * )
+                help_show
+            esac
+        ;;
+        * )
+        help
+        ;;
+    esac
 }
-main
+main $*
