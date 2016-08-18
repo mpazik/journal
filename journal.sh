@@ -83,6 +83,20 @@ show_week() {
     done
 }
 
+show_month() {
+    local day_of_moth=$(date '+%-d')
+
+    local i
+    for (( i=$day_of_moth-1; i>=0; i-- )) do
+        local date=$(date_minus_days ${i})
+        if [ -f $(file_path ${date}) ]; then
+	        printf "\n"
+	        show_day ${date}
+	        printf "\n"
+        fi
+    done
+}
+
 main() {
     import_config
 
@@ -100,6 +114,9 @@ main() {
                 ;;
                 "week")
                     show_week $(current_week)
+                ;;
+                "month")
+                    show_month
                 ;;
                 * )
                 help_show
