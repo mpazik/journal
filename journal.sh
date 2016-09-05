@@ -35,21 +35,22 @@ current_week() {
     echo $(date +%V)
 }
 
-file_name() {
-    local date=$1
-    local extension=$([ -z "$JOURNAL_FILE_EXTENSION" ] && echo "" || echo ".${JOURNAL_FILE_EXTENSION}")
-
-    echo ${date}${extension}
-}
 
 file_path() {
-    local date=$1
-    echo "${JOURNAL_PATH}/$(file_name ${date})"
+    local name=$1
+    local extension=$([ -z "$JOURNAL_FILE_EXTENSION" ] && echo "" || echo ".${JOURNAL_FILE_EXTENSION}")
+    echo "${JOURNAL_PATH}/${name}${extension}"
 }
 
 open_file() {
     local path=$1
     ${JOURNAL_EDITOR} ${path}
+}
+
+open_in_viewer() {
+    local content=$1
+    local viewer=${JOURNAL_VIEWER:-JOURNAL_EDITOR};
+    ${viewer} "${content}"
 }
 
 show_header() {
@@ -108,13 +109,13 @@ main() {
             local what_to_show=${2:-${JOURNAL_DEFAULT_SHOW_ACTION:-"week"}}
             case ${what_to_show} in
                 "day")
-                    show_day $(today_date)
+                    open_in_viewer "$(show_day $(today_date))"
                 ;;
                 "week")
-                    show_week $(current_week)
+                    open_in_viewer "$(show_week $(current_week))"
                 ;;
                 "month")
-                    show_month
+                    open_in_viewer "$(show_month)"
                 ;;
                 * )
                 help_show
