@@ -2,13 +2,44 @@
 # A script that manages daily journal
 
 SCRIPT_PATH=$(dirname "$0")
+JOURNAL_SH=$(basename "$0")
 
-help() {
-    echo "To be done"
+one_line_usage="${JOURNAL_SH} [-h] action action-param"
+
+usage()
+{
+    cat <<-EndUsage
+		Usage: ${one_line_usage}
+		Try '${JOURNAL_SH} -h' for more information.
+	EndUsage
+    exit 1
 }
 
-help_show() {
-    echo "To be done"
+main_help() {
+    cat <<EndHelp
+Program open and display journal files in the favorite editor.
+To see or change configuration, see file: ${SCRIPT_PATH}/journal.cfg
+
+Usage: ${one_line_usage}
+
+Options:
+  -h             display this help message
+
+Actions:
+  open           open today journal file
+  show           show journal files from period of time, see ${JOURNAL_SH}  show -h for more information
+EndHelp
+}
+
+show_help() {
+    cat <<EndHelp
+show journal files from period of time
+
+Periods:
+  day            show today
+  week           show current week
+  month          show current month
+EndHelp
 }
 
 die() {
@@ -118,11 +149,15 @@ main() {
                     open_in_viewer "$(show_month)"
                 ;;
                 * )
-                help_show
+                    show_help
+                ;;
             esac
         ;;
+        "-h")
+            main_help
+        ;;
         * )
-        help
+        usage
         ;;
     esac
 }
