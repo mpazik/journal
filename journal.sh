@@ -2,8 +2,6 @@
 # A script that manages daily journal
 
 SCRIPT_PATH=$(dirname "$0")
-JOURNAL_DEFAULT_ACTION="open"
-JOURNAL_DEFAULT_SHOW_ACTION="week"
 
 help() {
     echo "To be done"
@@ -100,14 +98,14 @@ show_month() {
 main() {
     import_config
 
-    local action=${1:-$JOURNAL_DEFAULT_ACTION}
+    local action=${1:-${JOURNAL_DEFAULT_ACTION:-"open"}}
 
     case ${action} in
         "open")
             open_file $(file_path $(today_date))
         ;;
         "show")
-            local what_to_show=${2:-$JOURNAL_DEFAULT_SHOW_ACTION}
+            local what_to_show=${2:-${JOURNAL_DEFAULT_SHOW_ACTION:-"week"}}
             case ${what_to_show} in
                 "day")
                     show_day $(today_date)
