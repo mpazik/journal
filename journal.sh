@@ -81,7 +81,7 @@ open_file() {
 open_in_viewer() {
     local content=$1
     local viewer=${JOURNAL_VIEWER:-JOURNAL_EDITOR};
-    ${viewer} "${content}"
+    echo "${content}" | ${viewer}
 }
 
 show_header() {
