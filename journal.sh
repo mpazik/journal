@@ -17,7 +17,7 @@ usage()
 
 main_help() {
     cat <<EndHelp
-Program open and display journal files in the favorite editor.
+Program open to edit and display journal files in the favorite editor.
 To see or change configuration, see file: ${SCRIPT_PATH}/journal.cfg
 
 Usage: ${one_line_usage}
@@ -26,7 +26,7 @@ Options:
   -h             display this help message
 
 Actions:
-  open           open today journal file
+  log            open today journal file in your editor
   show           show journal files from period of time, see ${JOURNAL_SH}  show -h for more information
 EndHelp
 }
@@ -79,12 +79,12 @@ add_time_tag() {
     printf "\n[${time_tag}]\n" >> ${path}
 }
 
-open_file() {
+open_file_to_log() {
     local path=$1
     ${JOURNAL_EDITOR} ${path}
 }
 
-open_in_viewer() {
+show_in_viewer() {
     local content=$1
     local viewer=${JOURNAL_VIEWER:-JOURNAL_EDITOR};
     echo "${content}" | ${viewer}
@@ -136,27 +136,27 @@ show_month() {
 main() {
     import_config
 
-    local action=${1:-${JOURNAL_DEFAULT_ACTION:-"open"}}
+    local action=${1:-${JOURNAL_DEFAULT_ACTION:-"log"}}
 
     case ${action} in
-        "open")
+        "log")
             local path=$(file_path $(today_date))
             if ${ADD_TIME_TAG}; then
                 add_time_tag ${path}
             fi
-            open_file ${path}
+            open_file_to_log ${path}
         ;;
         "show")
             local what_to_show=${2:-${JOURNAL_DEFAULT_SHOW_ACTION:-"week"}}
             case ${what_to_show} in
                 "day")
-                    open_in_viewer "$(show_day $(today_date))"
+                    show_in_viewer "$(show_day $(today_date))"
                 ;;
                 "week")
-                    open_in_viewer "$(show_week $(current_week))"
+                    show_in_viewer "$(show_week $(current_week))"
                 ;;
                 "month")
-                    open_in_viewer "$(show_month)"
+                    show_in_viewer "$(show_month)"
                 ;;
                 * )
                     show_help
