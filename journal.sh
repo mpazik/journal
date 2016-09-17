@@ -73,6 +73,12 @@ file_path() {
     echo "${JOURNAL_PATH}/${name}${extension}"
 }
 
+add_time_tag() {
+    local path=$1
+    local time_tag=$(date +%T)
+    printf "\n[${time_tag}]\n" >> ${path}
+}
+
 open_file() {
     local path=$1
     ${JOURNAL_EDITOR} ${path}
@@ -134,7 +140,11 @@ main() {
 
     case ${action} in
         "open")
-            open_file $(file_path $(today_date))
+            local path=$(file_path $(today_date))
+            if ${ADD_TIME_TAG}; then
+                add_time_tag ${path}
+            fi
+            open_file ${path}
         ;;
         "show")
             local what_to_show=${2:-${JOURNAL_DEFAULT_SHOW_ACTION:-"week"}}
