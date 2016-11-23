@@ -54,7 +54,8 @@ import_config() {
 }
 
 today_date() {
-    echo $(date +%Y-%m-%d)
+    local modifier=$1
+    echo $(date -v ${modifier}d +%Y-%m-%d)
 }
 
 date_minus_days() {
@@ -66,6 +67,10 @@ current_week() {
     echo $(date +%V)
 }
 
+current_month() {
+    local modifier=$1
+    echo $(date -v ${modifier}m +%Y-%m)
+}
 
 file_path() {
     local name=$1
@@ -103,27 +108,42 @@ show_day() {
 
 show_week() {
     local week_to_show=$1
-    [ "$week_to_show" -gt "$(current_week)" ] && die "You can not show a week from future"
+    [ "$week_to_show" -gt "$(current_week)" ] && die "You can not show a week from a future"
 
-    local days_to_adjust=$((  ($(current_week) - ${week_to_show}) * 7 ))
     local day_of_week=$(date +%u)
+    local days_to_adjust=$((  ($(current_week) - ${week_to_show}) * 7-day_of_week-1 ))
 
-    local i
-    for (( i=$day_of_week-1; i>=0; i-- )) do
-        local date=$(date_minus_days $(( ${i}+days_to_adjust )))
+    for (( i=1; i<=7; i++ )) do
+        local minus_days=$(( days_to_adjust-${i}+7 ))
+        if [[ ${minus_days} -lt 0 ]]; then
+            continue
+        fi
+        local date=$(date_minus_days ${minus_days})
+
         if [ -f $(file_path ${date}) ]; then
-	        printf "\n"
+            printf "\n"
 	        show_day ${date}
 	        printf "\n"
         fi
     done
 }
 
-show_month() {
-    local day_of_moth=$(date '+%-d')
+days_in_month() {
+    local date=$1
+    local year=$(date -j -f "%Y-%m-%d" "${date}" +%Y)
+    local month=$(date -j -f "%Y-%m-%d" "${date}" +%m)
+    cal ${month} ${year} | awk 'NF {DAYS = $NF}; END {print DAYS}'
+}
 
-    local i
-    for (( i=$day_of_moth-1; i>=0; i-- )) do
+show_month() {
+    local month_to_show=$1
+
+    local day_of_month=$(date '+%-d')
+    local first_day_of_month=${month_to_show}"-01"
+    local days_in_month=$(days_in_month ${first_day_of_month})
+
+    for (( i=0; i<${days_in_month}; i++ )) do
+       local date=$(date -j -v +${i}d -f "%Y-%m-%d" "${first_day_of_month}" +%Y-%m-%d)
         local date=$(date_minus_days ${i})
         if [ -f $(file_path ${date}) ]; then
 	        printf "\n"
@@ -140,7 +160,8 @@ main() {
 
     case ${action} in
         "log")
-            local path=$(file_path $(today_date))
+            local modifier=${2:-"+0"}
+            local path=$(file_path $(today_date ${modifier}))
             if ${ADD_TIME_TAG}; then
                 add_time_tag ${path}
             fi
@@ -148,15 +169,17 @@ main() {
         ;;
         "show")
             local what_to_show=${2:-${JOURNAL_DEFAULT_SHOW_ACTION:-"week"}}
+            local modifier=${3:-"+0"}
             case ${what_to_show} in
                 "day")
-                    show_in_viewer "$(show_day $(today_date))"
+                    show_in_viewer "$(show_day $(today_date ${modifier}))"
                 ;;
                 "week")
-                    show_in_viewer "$(show_week $(current_week))"
+                    show_in_viewer "$(show_week $(($(current_week)+${modifier})) )"
                 ;;
                 "month")
-                    show_in_viewer "$(show_month)"
+                    show_month $(current_month ${modifier})
+#                    show_in_viewer "$(show_month $(current_month ${modifier}))"
                 ;;
                 * )
                     show_help
