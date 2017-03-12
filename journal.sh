@@ -111,7 +111,7 @@ show_week() {
     [ "$week_to_show" -gt "$(current_week)" ] && die "You can not show a week from a future"
 
     local day_of_week=$(date +%u)
-    local days_to_adjust=$((  ($(current_week) - ${week_to_show}) * 7-day_of_week-1 ))
+    local days_to_adjust=$(( ($(current_week) +1 - ${week_to_show}) * 7-day_of_week ))
 
     for (( i=1; i<=7; i++ )) do
         local minus_days=$(( days_to_adjust-${i}+7 ))
